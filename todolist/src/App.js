@@ -1,6 +1,6 @@
 import { query, onSnapshot, addDoc, collection } from "firebase/firestore";
 import { db } from "./firebase";
-import {} from "@firebase/firestore";
+import { deleteDoc, doc } from "@firebase/firestore";
 import "./firebase";
 import { useEffect, useState } from "react";
 import "./App.css";
@@ -19,13 +19,18 @@ function App() {
       return;
     }
     await addDoc(collection(db, "todos"), {
+      //todos database
       text: input,
       completed: false,
     });
-    setInput("");
+    setInput(""); //clear the input field
     console.log("input value:", input);
   };
 
+  //Delete Todo
+  const deleteTodo = async (id) => {
+    await deleteDoc(doc(db, "todos", id));
+  };
   useEffect(() => {
     const q = query(collection(db, "todos"));
 
@@ -43,7 +48,7 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen bg-gradient-to-r from-gray-500 to-slate-100 p-4">
+    <div className="h-full w-full bg-gradient-to-r from-gray-500 to-slate-100 p-3">
       <div className="w-full m-auto max-w-[500px] bg-slate-200 rounded-md p-4">
         <h1 className="text-3xl text-center p-2 text-gray-700">ToDo App</h1>
         <form className="flex justify-between" onSubmit={createTodo}>
@@ -64,7 +69,7 @@ function App() {
         </form>
         <ul>
           {toDos.map((item, index) => (
-            <Todo key={index} todo={item} />
+            <Todo key={index} todo={item} deleteTodo={deleteTodo} />
           ))}
         </ul>
       </div>
