@@ -1,6 +1,6 @@
 import { query, onSnapshot, addDoc, collection } from "firebase/firestore";
 import { db } from "./firebase";
-import { deleteDoc, doc } from "@firebase/firestore";
+import { deleteDoc, doc, updateDoc } from "@firebase/firestore";
 import "./firebase";
 import { useEffect, useState } from "react";
 import "./App.css";
@@ -19,7 +19,7 @@ function App() {
       return;
     }
     await addDoc(collection(db, "todos"), {
-      //todos database
+      //todos is a database
       text: input,
       completed: false,
     });
@@ -27,10 +27,17 @@ function App() {
     console.log("input value:", input);
   };
 
+  //Toggle(if completed) Todo
+  const ifCompleted = async (todo) => {
+    await updateDoc(doc(db, "todos", todo.id), { completed: !todo.completed });
+  };
+
   //Delete Todo
   const deleteTodo = async (id) => {
     await deleteDoc(doc(db, "todos", id));
   };
+
+  //Read Todo
   useEffect(() => {
     const q = query(collection(db, "todos"));
 
@@ -48,14 +55,16 @@ function App() {
   }, []);
 
   return (
-    <div className="h-full w-full bg-gradient-to-r from-gray-500 to-slate-100 p-3">
-      <div className="w-full m-auto max-w-[500px] bg-slate-200 rounded-md p-4">
-        <h1 className="text-3xl text-center p-2 text-gray-700">ToDo App</h1>
-        <form className="flex justify-between" onSubmit={createTodo}>
+    <div className="h-screen w-screen bg-gradient-to-r from-indigo-300 via-purple-500 to-pink-300 p-3">
+      <div className="w-full m-auto max-w-[500px] bg-slate-100 rounded-md p-4 shadow-xl">
+        <h1 className="text-4xl text-center p-2 text-gray-700 font-bold">
+          ToDo App
+        </h1>
+        <form className="flex justify-between mt-4" onSubmit={createTodo}>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="border p-2 w-full text-xl rounded"
+            className="border p-2 w-full text-xl rounded "
             type="text"
             placeholder="Add To-do"
             autoFocus
@@ -69,7 +78,12 @@ function App() {
         </form>
         <ul>
           {toDos.map((item, index) => (
-            <Todo key={index} todo={item} deleteTodo={deleteTodo} />
+            <Todo
+              key={index}
+              todo={item}
+              deleteTodo={deleteTodo}
+              ifCompleted={ifCompleted}
+            />
           ))}
         </ul>
       </div>
